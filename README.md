@@ -37,11 +37,12 @@ GIF created with [LiceCap](http://www.cockos.com/licecap/).
 
 ## Notes
 
-Describe any challenges encountered while building the app.
+A fair amount of time setting up and installing (not included in the total time spent), with a few bugs in the design view that needed fixing in Android Studio:
+http://stackoverflow.com/questions/35928580/android-n-requires-the-ide-to-be-running-with-java-1-8-or-later
 
 ## License
 
-    Copyright [yyyy] [name of copyright owner]
+    Copyright 2016 Nicolas Halper
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
