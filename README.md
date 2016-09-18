@@ -4,7 +4,7 @@ ToDoApp is an android app that allows building a todo list and basic todo items 
 
 Submitted by: Nicolas Halper
 
-Time spent: 2.5 hours total
+Time spent: 3.5 hours total
 
 ## User Stories
 
