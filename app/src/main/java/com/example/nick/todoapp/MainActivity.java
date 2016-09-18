@@ -11,15 +11,13 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import org.apache.commons.io.FileUtils;
-
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    ArrayList<String> todoItems;
+    List<Item> todoItems;
+    ArrayList<String> todoStrings;
     ArrayAdapter<String> aToDoAdapter;
     ListView lvItems;
     EditText etEditText;
@@ -41,9 +39,9 @@ public class MainActivity extends AppCompatActivity {
         lvItems.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                todoItems.remove(position);
-                aToDoAdapter.notifyDataSetChanged();
-                writeItems();
+
+                deletePosition(position);
+                //writeItems();
                 return true;
             }
         });
@@ -53,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Log.d("CLICK","onItemClick");
                 Intent i = new Intent(MainActivity.this, EditItemActivity.class);
-                String content = todoItems.get(position);
+                String content = todoStrings.get(position);
                 i.putExtra("content",content);
                 i.putExtra("position",position);
                 startActivityForResult(i,EDIT_ITEM_REQUEST_CODE);
@@ -70,16 +68,17 @@ public class MainActivity extends AppCompatActivity {
             String content = data.getExtras().getString("content");
             int position = data.getExtras().getInt("position",0);
 
-            todoItems.set(position, content);
+            updatePosition(position, content);
+            todoStrings.set(position, content);
             aToDoAdapter.notifyDataSetChanged();
 
-            writeItems();
+           // writeItems();
 
             Toast.makeText(this,"Item updated", Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void readItems() {
+    /*private void readItems() {
         File filesDir = getFilesDir();
         File file = new File(filesDir, "todo.txt");
         try {
@@ -97,20 +96,52 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e) {
 
         }
+    }*/
+
+    protected void deletePosition(int position) {
+        todoStrings.remove(position);
+
+        TodoDatabaseHelper databaseHelper = TodoDatabaseHelper.getInstance(this);
+        Item removeItem = todoItems.get(position);
+        databaseHelper.deleteItem(removeItem);
+
+        todoItems.remove(position);
+        aToDoAdapter.notifyDataSetChanged();
+    }
+
+    protected void updatePosition(int position, String text) {
+        Item updateItem = todoItems.get(position);
+        updateItem.text = text;
+
+        TodoDatabaseHelper databaseHelper = TodoDatabaseHelper.getInstance(this);
+        databaseHelper.updateItem(updateItem);
     }
 
     public void populateArrayItems() {
-        todoItems = new ArrayList<String>();
-        readItems();
 
-        aToDoAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, todoItems);
+        TodoDatabaseHelper databaseHelper = TodoDatabaseHelper.getInstance(this);
+
+        todoItems = databaseHelper.getAllItems();
+        todoStrings = new ArrayList<>();
+
+        for (Item item : todoItems) {
+            todoStrings.add(item.text);
+        }
+        //todoItems = new ArrayList<String>();
+        //readItems();
+
+        aToDoAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, todoStrings);
 
     }
 
     public void onAddItem(View view) {
+
+        TodoDatabaseHelper databaseHelper = TodoDatabaseHelper.getInstance(this);
+        Item item = databaseHelper.createItem(etEditText.getText().toString());
+
         aToDoAdapter.add(etEditText.getText().toString());
         etEditText.setText("");
-        writeItems();
+        //writeItems();
     }
 
 
